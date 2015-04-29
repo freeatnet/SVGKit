@@ -152,6 +152,8 @@
     label.alignmentMode = kCAAlignmentLeft;
     
     label.foregroundColor = [SVGHelperUtilities parseFillForElement:self];
+    [self applyTextShadow:label];
+    
 #if TARGET_OS_IPHONE
     label.contentsScale = [[UIScreen mainScreen] scale];
 #endif
@@ -164,6 +166,21 @@
 	
     return label;
 }
+
+-(void)applyTextShadow:(CATextLayer *)layer {
+    NSString *textShadowProperty = [self cascadedValueForStylableProperty:@"text-shadow"];
+    if (textShadowProperty.length > 0) {
+        NSArray *textShadowProperties = [textShadowProperty componentsSeparatedByString:@" "];
+        
+        SVGColor shadowColor = SVGColorFromString([(NSString *)[textShadowProperties lastObject] cStringUsingEncoding:NSASCIIStringEncoding]);
+        
+        layer.shadowOffset = CGSizeMake([(NSString *)textShadowProperties[0] floatValue], [(NSString *)textShadowProperties[1] floatValue]);
+        layer.shadowRadius = [(NSString *)textShadowProperties[2] floatValue];
+        layer.shadowColor = CGColorWithSVGColor(shadowColor);
+        layer.shadowOpacity = shadowColor.a;
+    }
+}
+
 
 - (void)layoutLayer:(CALayer *)layer
 {
